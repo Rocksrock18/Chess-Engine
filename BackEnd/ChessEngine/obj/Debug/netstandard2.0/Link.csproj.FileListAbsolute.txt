@@ -1,0 +1,12 @@
+C:\Users\jtmax\source\repos\HackChessEngine\Link\bin\Debug\netstandard2.0\Link.deps.json
+C:\Users\jtmax\source\repos\HackChessEngine\Link\bin\Debug\netstandard2.0\Link.dll
+C:\Users\jtmax\source\repos\HackChessEngine\Link\bin\Debug\netstandard2.0\Link.pdb
+C:\Users\jtmax\source\repos\HackChessEngine\Link\bin\Debug\netstandard2.0\Rudz.Chess.dll
+C:\Users\jtmax\source\repos\HackChessEngine\Link\bin\Debug\netstandard2.0\Rudz.Chess.pdb
+C:\Users\jtmax\source\repos\HackChessEngine\Link\obj\Debug\netstandard2.0\Link.csproj.CoreCompileInputs.cache
+C:\Users\jtmax\source\repos\HackChessEngine\Link\obj\Debug\netstandard2.0\Link.AssemblyInfoInputs.cache
+C:\Users\jtmax\source\repos\HackChessEngine\Link\obj\Debug\netstandard2.0\Link.AssemblyInfo.cs
+C:\Users\jtmax\source\repos\HackChessEngine\Link\obj\Debug\netstandard2.0\Link.csproj.CopyComplete
+C:\Users\jtmax\source\repos\HackChessEngine\Link\obj\Debug\netstandard2.0\Link.dll
+C:\Users\jtmax\source\repos\HackChessEngine\Link\obj\Debug\netstandard2.0\Link.pdb
+C:\Users\jtmax\source\repos\HackChessEngine\Link\obj\Debug\netstandard2.0\Link.csprojAssemblyReference.cache

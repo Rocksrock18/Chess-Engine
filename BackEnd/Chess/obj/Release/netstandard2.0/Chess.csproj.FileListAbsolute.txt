@@ -1,0 +1,9 @@
+C:\Users\jtmax\source\repos\HackChessEngine\Chess\bin\Release\netstandard2.0\Rudz.Chess.deps.json
+C:\Users\jtmax\source\repos\HackChessEngine\Chess\bin\Release\netstandard2.0\Rudz.Chess.dll
+C:\Users\jtmax\source\repos\HackChessEngine\Chess\bin\Release\netstandard2.0\Rudz.Chess.pdb
+C:\Users\jtmax\source\repos\HackChessEngine\Chess\obj\Release\netstandard2.0\Chess.csprojAssemblyReference.cache
+C:\Users\jtmax\source\repos\HackChessEngine\Chess\obj\Release\netstandard2.0\Chess.csproj.CoreCompileInputs.cache
+C:\Users\jtmax\source\repos\HackChessEngine\Chess\obj\Release\netstandard2.0\Chess.AssemblyInfoInputs.cache
+C:\Users\jtmax\source\repos\HackChessEngine\Chess\obj\Release\netstandard2.0\Chess.AssemblyInfo.cs
+C:\Users\jtmax\source\repos\HackChessEngine\Chess\obj\Release\netstandard2.0\Rudz.Chess.dll
+C:\Users\jtmax\source\repos\HackChessEngine\Chess\obj\Release\netstandard2.0\Rudz.Chess.pdb

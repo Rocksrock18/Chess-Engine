@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +36,7 @@ namespace BaseChessEngine
         public bool PerformMove(String mv) //hplay e2e4
         {
             var moveList = new MoveGenerator(game.Position).Moves;
-            foreach (Move m in moveList)
+            foreach(Move m in moveList)
             {
                 if (m.ToString().Equals(mv))
                 {

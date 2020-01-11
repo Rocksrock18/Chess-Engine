@@ -18,12 +18,22 @@ namespace BackEndAPI.Controllers
         [HttpGet]
         public string Get([FromQuery] String fen)
         {
+            bool white = true;
             if (fen == null)
             {
                 return "njull";
             }
             engine.game.SetFen(fen);
-            String move = engine.GetBestMove(1000, true);
+            int counter = 0;
+            while(fen[counter] != ' ')
+            {
+                counter++;
+            }
+            if(fen[counter+1] == 'b')
+            {
+                white = false;
+            }
+            String move = engine.GetBestMove(1000, white);
             return move;
         }
 

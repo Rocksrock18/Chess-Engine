@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,13 +11,19 @@ namespace BackEndAPI.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        Engine engine = new Engine();
+        static Engine engine = new Engine();
+
 
         // GET api/values
         [HttpGet]
-        public ActionResult<string> Get()
+        public string Get([FromQuery] String fen)
         {
-            String move = engine.GetBestMove(5000, true);
+            if (fen == null)
+            {
+                return "njull";
+            }
+            engine.game.SetFen(fen);
+            String move = engine.GetBestMove(1000, true);
             return move;
         }
 

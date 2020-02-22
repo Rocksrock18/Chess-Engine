@@ -1,4 +1,4 @@
-﻿/*
+/*
 ChessLib, a chess data structure library
 
 MIT License
@@ -95,6 +95,8 @@ namespace Rudz.Chess
         bool PassedPawn(Square square);
 
         void RemovePiece(Square square, Piece piece);
+
+        void SetCastle(bool white);
 
         BitBoard AttacksTo(Square square, BitBoard occupied);
 

@@ -65,6 +65,9 @@ namespace Rudz.Chess
             Clear();
         }
 
+        public bool whiteCastle = true;
+        public bool blackCastle = true;
+
         public BitBoard[] BoardPieces { get; }
 
         public BitBoard[] OccupiedBySide { get; }
@@ -87,6 +90,19 @@ namespace Rudz.Chess
             BoardLayout.Fill(EPieces.NoPiece);
             OccupiedBySide.Fill(Zero);
             BoardPieces.Fill(Zero);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetCastle(bool white)
+        {
+            if(white)
+            {
+                whiteCastle = false;
+            }
+            else
+            {
+                blackCastle = false;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -478,9 +494,10 @@ namespace Rudz.Chess
             return MoveExtensions.EmptyMove;
         }
 
+        // canCastle &&
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanCastle(ECastleling type)
-            => State.CastlelingRights.HasFlagFast(type.GetCastleAllowedMask(State.SideToMove)) && IsCastleAllowed(type.GetKingCastleTo(State.SideToMove));
+            => (whiteCastle && State.SideToMove.IsWhite() || blackCastle && State.SideToMove.IsBlack()) && State.CastlelingRights.HasFlagFast(type.GetCastleAllowedMask(State.SideToMove)) && IsCastleAllowed(type.GetKingCastleTo(State.SideToMove));
 
         public bool IsCastleAllowed(Square square)
         {
@@ -522,6 +539,7 @@ namespace Rudz.Chess
             if (!InCheck && piece.Type() != EPieceType.King && (State.Pinned & from).Empty() && !type.HasFlagFast(EMoveType.Epcapture))
                 return true;
 
+            
             IsProbing = true;
             MakeMove(move);
             var opponentAttacking = IsAttacked(GetPieceSquare(EPieceType.King, State.SideToMove), ~State.SideToMove);

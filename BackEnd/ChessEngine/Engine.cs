@@ -7,590 +7,254 @@ using Rudz.Chess;
 using Rudz.Chess.Enums;
 using Rudz.Chess.Types;
 using Rudz.Chess.Factories;
-using Microsoft.AspNetCore.Mvc;
-using HtmlAgilityPack;
 
 namespace BaseChessEngine
 {
-    public class Engine
+    public class Eval
     {
-        private System.Timers.Timer timer;
-        public Dictionary<string, int> transpositionTableA;
-        public Dictionary<string, int> transpositionTableB;
-        public Dictionary<string, MoveList> transpositionTableM;
-        public Dictionary<string, Move> transpositionTablePV;
-        private bool a;
-        bool end;
-        Move bestMove;
-        public Game game;
-        public Engine()
+
+        public static bool end = false;
+
+        public static int[] KING = new int[]
         {
-            var position = new Position();
-            game = (Game)GameFactory.Create(position);
-            game.NewGame();
-            end = false;
-            a = true;
-            transpositionTableA = new Dictionary<string, int>();
-            transpositionTableB = new Dictionary<string, int>();
-            transpositionTableM = new Dictionary<string, MoveList>();
-            transpositionTablePV = new Dictionary<string, Move>();
-        }
-        [HttpGet]
-        public String PerformBestMove(int timeLimit, bool white) //cplay 1000 w or cplay 1500 b
+             20,  50,  30,   0,   0,  10,  50,  20 ,
+             20,  20,   0,   0,   0,   0,  20,  20 ,
+             -10, -20, -20, -20, -20, -20, -20, -10 ,
+             -10, -20, -20, -20, -20, -20, -20, -10 ,
+             -20, -30, -30, -40, -40, -30, -30, -20 ,
+             -30, -40, -40, -50, -50, -40, -40, -30 ,
+             -30, -40, -40, -50, -50, -40, -40, -30 ,
+             -30, -40, -40, -50, -50, -40, -40, -30 ,
+             -30, -40, -40, -50, -50, -40, -40, -30
+        };
+
+        public static int[] KING_END = new int[]
         {
-            if(game.Occupied.Count < 8)
-            {
-                String mv = EndGameTableBase();
-                PerformMove(mv);
-                return mv;
-            }
-            Move move = CalculateBestMove(timeLimit, white);
-            if (move.IsCastlelingMove())
-            {
-                game.Position.SetCastle(white);
-            }
-            //Console.WriteLine("Move Performed: " + move);
-            game.MakeMove(move);
-            Console.WriteLine(Eval.end);
-            //Console.WriteLine(game);
-            end = false;
-            timer.Stop();
-            return move.ToString();
-        }
-        public bool PerformMove(String mv) //hplay e2e4
+            -20, -10, -10, -5, -5, -10, -10, -20 ,
+            -10,   0,   0,  0,  0,   0,   0, -10 ,
+            -10,   0,   5,  5,  5,   5,   0, -10 ,
+             0,   0,   5,  5,  5,   5,   0,  -5 ,
+            -5,   0,   5,  5,  5,   5,   0,  -5 ,
+            -10,   0,   5,  5,  5,   5,   0, -10 ,
+            -10,   0,   0,  0,  0,   0,   0, -10 ,
+            -20, -10, -10, -5, -5, -10, -10, -20
+        };
+
+
+        public static int[] QUEEN = new int[]
         {
-            var moveList = new MoveGenerator(game.Position).Moves;
-            foreach(Move m in moveList)
-            {
-                if (m.ToString().Equals(mv))
-                {
-                    if (m.IsCastlelingMove())
-                    {
-                        game.Position.SetCastle(game.State.SideToMove.IsWhite());
-                    }
-                    game.MakeMove(m);
-                    return true;
-                }
-            }
-            return false;
-        }
-        public String GetBestMove(int timeLimit, bool white) //suggest 1000 w or suggest 5000 b
+            -20, -10, -10, -5, -5, -10, -10, -20 ,
+            -10,   0,   5,  0,  0,   0,   0, -10 ,
+            -10,   5,   5,  5,  5,   5,   0, -10 ,
+             0,   0,   5,  5,  5,   5,   0,  -5 ,
+            -5,   0,   5,  5,  5,   5,   0,  -5 ,
+            -10,   0,   5,  5,  5,   5,   0, -10 ,
+            -10,   0,   0,  0,  0,   0,   0, -10 ,
+            -20, -10, -10, -5, -5, -10, -10, -20
+        };
+
+        public static int[] ROOK = new int[]
         {
-            //game.Position.SetCastle();
-            Move move = CalculateBestMove(timeLimit, white);
-            //Console.WriteLine("Move Evaluated: " + move);
-            end = false;
-            timer.Stop();
-            return move.ToString();
-        }
-        private void UpdateTranspositionTable(string key, int eval)
+            0,   0,  0,  10, 10, 5,  0,  0 ,
+            -5,  0,  0,  0,  0,  0,  0, -5 ,
+            -5,  0,  0,  0,  0,  0,  0, -5 ,
+            -5,  0,  0,  0,  0,  0,  0, -5 ,
+            -5,  0,  0,  0,  0,  0,  0, -5 ,
+            -5,  0,  0,  0,  0,  0,  0, -5 ,
+            5,  15, 15, 15, 15, 15, 15,  5 ,
+            0,   0,  0,  0,  0,  0,  0,  0
+        };
+
+        public static int[] KNIGHT = new int[]
         {
-            if(a && !transpositionTableA.ContainsKey(key))
-            {
-                transpositionTableA.Add(key, eval);
-            }
-            else if(!a && !transpositionTableB.ContainsKey(key))
-            {
-                transpositionTableB.Add(key, eval);
-            }
-        }
-        private Move CalculateBestMove(int timeLimit, bool white)
+            -50, -10, -30, -30, -30, -30, -10, -50 ,
+            -40, -20,   0,   5,   5,   0, -20, -40 ,
+            -30,   5,  10,  10,  10,  10,   5, -30 ,
+            -30,   0,  10,  15,  15,  10,   0, -30 ,
+            -30,   5,  10,  10,  10,  10,   5, -30 ,
+            -30,   0,   5,   5,   5,   5,   0, -30 ,
+            -40, -20,   0,   0,   0,   0, -20, -40 ,
+            -50, -40, -30, -30, -30, -30, -40, -50
+        };
+
+        //public static int[] knight = new int[]
+        //{
+        //    -50, -20, -30, -30, -30, -30, -20, -50 ,
+        //    -40, -20,   0,   5,   5,   0, -20, -40 ,
+        //    -30,   5,  10,  15,  15,  12,   5, -30 ,
+        //    -30,   0,  15,  20,  20,  15,   0, -30 ,
+        //    -30,   5,  15,  20,  20,  15,   5, -30 ,
+        //    -30,   0,  10,  15,  15,  10,   0, -30 ,
+        //    -40, -20,   0,   0,   0,   0, -20, -40 ,
+        //    -50, -40, -30, -30, -30, -30, -40, -50
+        //};
+
+
+        /* jasen's bishop */
+        /*
+        public static int[] BISHOP = new int[]
+{
+            -20, -10, -10, -10, -10, -10, -10, -20 ,
+            -10,  12,   0,   5,   5,   0,  14, -10 ,
+            -10,  10,  10,  12,  12,  10,  10, -10 ,
+            -10,   0,  15,  15,  15,  15,   0, -10 ,
+            -10,   5,   5,  10,  10,   5,   5, -10 ,
+            -10,   0,   5,  10,  10,   5,   0, -10 ,
+            -10,   0,   0,   0,   0,   0,   0, -10 ,
+            -20, -10, -10, -10, -10, -10, -10, -20
+        };
+        */
+
+        public static int[] BISHOP = new int[]
         {
-            setTimer(timeLimit);
-            Move oldMove = new Move();
-            int maxDepth = 1;
+            -20, -10, -10, -10, -10, -10, -10, -20 ,
+            -10,  12,   0,   5,   5,   0,  12, -10 ,
+            -10,  10,  10,  12,  12,  10,  10, -10 ,
+            -10,   0,  15,  10,  10,  15,   0, -10 ,
+            -10,   5,   5,  10,  10,   5,   5, -10 ,
+            -10,   0,   5,  10,  10,   5,   0, -10 ,
+            -10,   0,   0,   0,   0,   0,   0, -10 ,
+            -20, -10, -10, -10, -10, -10, -10, -20
+        };
+        /*
+         * public static int[] BISHOP = new int[]
+        {
+            -20, -10, -10, -10, -10, -10, -10, -20 ,
+            -10,   5,   0,   0,   0,   0,   5, -10 ,
+            -10,  10,  10,  10,  10,  10,  10, -10 ,
+            -10,   0,  10,  10,  10,  10,   0, -10 ,
+            -10,   5,   5,  10,  10,   5,   5, -10 ,
+            -10,   0,   5,  10,  10,   5,   0, -10 ,
+            -10,   0,   0,   0,   0,   0,   0, -10 ,
+            -20, -10, -10, -10, -10, -10, -10, -20
+        };
+        */
+        //jacob's pawn
+        public static int[] PAWN = new int[]
+        {
+            0,  0,   0,   0,   0,   0,   0,  0 ,
+            0,  25,  5,  -20, -20,  25,  25, 0 ,
+            8,  10,  10,  30,  30,  10,  10, 8 ,
+            10, 10,  20,  40,  40,  20,  10, 10 ,
+            15, 20,  40,  50,  50,  35,  20, 15 ,
+            40, 40,  40,  60,  60,  40,  40, 40 ,
+            80, 80,  80,  80,  80,  80,  80, 80 ,
+            0,  0,   0,   0,   0,   0,   0,  0
+        };
+
+        //        /* jasen's pawn */
+        //        public static int[] PAWN = new int[]
+        //{
+        //            0,  0,   0,   0,   0,   0,  0,  0 ,
+        //            5,  5,   5, -20, -20,  5,  5,  5 ,
+        //            5,  5,  10,  10,  10, -10,  6,  5 ,
+        //            5,  0,  17,  20,  20,  12,  0,  5 ,
+        //            5,  5,  10,  25,  25,  10,  5,  5 ,
+        //           20, 10,  20,  50,  50,  20, 10, 20 ,
+        //           45, 50,  75,  75,  75,  75, 50, 45 ,
+        //            0,  0,   0,   0,   0,   0,  0,  0
+        //};
+        /* original
+        public static int[] PAWN = new int[]
+        {
+            0,  0,   0,   0,   0,   0,  0,  0 ,
+            5, 10,  10, -20, -20,  10, 10,  5 ,
+            5, -5, -10,   0,   0, -10, -5,  5 ,
+            0,  0,   0,  20,  20,   0,  0,  0 ,
+            5,  5,  10,  25,  25,  10,  5,  5 ,
+            10, 10,  20,  30,  30,  20, 10, 10 ,
+            50, 50,  50,  50,  50,  50, 50, 50 ,
+            0,  0,   0,   0,   0,   0,  0,  0
+        };
+        */
+        public static int PieceValueMG(Piece[] boardP, bool end)
+        {
             int score = 0;
-            int newScore = 0;
-            String fen = game.GetFen().Fen;
-            int alpha = int.MinValue;
-            int beta = int.MaxValue;
-            while (!end)
+            for (int i = 0; i < 64; i++)
             {
-                if (white)
+                Piece piece = boardP[i];
+                if (!piece.IsNoPiece())
                 {
-                    score = AlphaBetaMax(maxDepth, maxDepth, alpha, beta);
-                }
-                else
-                {
-                    score = AlphaBetaMin(maxDepth, maxDepth, alpha, beta);
-                }
-                if (!end)
-                {
-                    oldMove = bestMove;
-                    newScore = score;
-                    Console.WriteLine(oldMove + " " + score + " " + maxDepth);
-                    maxDepth++;
-                }
-                game.SetFen(fen);
-                if (newScore == int.MaxValue || newScore == int.MinValue)
-                {
-                    break;
+                    switch(piece.GetPieceChar())
+                    {
+                        case 'p':
+                            score += -100;
+                            score += -PAWN[(63 - i) / 8 * 8 + i % 8];
+                            break;
+                        case 'P':
+                            score += 100;
+                            score += PAWN[i];
+                            break;
+                        case 'r':
+                            score += -500;
+                            score += -ROOK[(63 - i) / 8 * 8 + i % 8];
+                            break;
+                        case 'R':
+                            score += 500;
+                            score += ROOK[i];
+                            break;
+                        case 'n':
+                            score += -300;
+                            score += -KNIGHT[(63 - i) / 8 * 8 + i % 8];
+                            break;
+                        case 'N':
+                            score += 300;
+                            score += KNIGHT[i];
+                            break;
+                        case 'b':
+                            score += -320;
+                            score += -BISHOP[(63 - i) / 8 * 8 + i % 8];
+                            break;
+                        case 'B':
+                            score += 320;
+                            score += BISHOP[i];
+                            break;
+                        case 'k':
+                            //score += -28000;
+                            if(end)
+                            {
+                                score += -KING_END[(63 - i) / 8 * 8 + i % 8];
+                            }
+                            else
+                            {
+                                score += -KING[(63 - i) / 8 * 8 + i % 8];
+                            }
+                            break;
+                        case 'K':
+                            //score += 28000;
+                            if (end)
+                            {
+                                score += KING_END[i];
+                            }
+                            else
+                            {
+                                score += KING[i];
+                            }
+                            break;
+                        case 'q':
+                            score += -900;
+                            score += -QUEEN[(63 - i) / 8 * 8 + i % 8];
+                            break;
+                        case 'Q':
+                            score += 900;
+                            score += QUEEN[i];
+                            break;
+                    }
                 }
             }
-            if(a)
-            {
-                transpositionTableB = new Dictionary<string, int>();
-            }
-            else
-            {
-                transpositionTableA = new Dictionary<string, int>();
-            }
-            transpositionTableM = new Dictionary<string, MoveList>();
-            transpositionTablePV = new Dictionary<string, Move>();
-            a = !a;
-            Console.WriteLine("Max depth: " + (maxDepth-1));
-            Console.WriteLine("Evaluation: " + newScore);
-            Console.WriteLine("TTA Count: " + transpositionTableA.Count);
-            Console.WriteLine("TTB Count: " + transpositionTableB.Count);
-            return oldMove;
+            return score;
         }
-        private int AlphaBetaMax(int currentDepth, int initialDepth, int alpha, int beta)
+
+        public static int MainEvaluation(Piece[] pieces, Game engine, int type)//mg = 0, eg = 1 at 53.33 ply moves or 26.66 full moves
         {
-            if(game.Position.IsMate())
-            {
-                return int.MinValue;
-            }
-            String key = $"0x{game.State.Key:X}";
-            Move nodeBestMove = new Move();
-            int nodeBestScore = int.MinValue;
-            if (currentDepth == 0)
-            {
-                if(a)
-                {
-                    if (transpositionTableB.ContainsKey(key))
-                    {
-                        int value = transpositionTableB[key];
-                        if (!transpositionTableA.ContainsKey(key))
-                        {
-                            transpositionTableA.Add(key, value);
-                        }
-                        return value;
-                    }
-                    else if (transpositionTableA.ContainsKey(key))
-                    {
-                        return transpositionTableA[key];
-                    }
-                    int eval = QuiescenceMax(alpha, beta, 0);
-                    transpositionTableA.Add(key, eval);
-                    return eval;
-                }
-                else
-                {
-                    if (transpositionTableA.ContainsKey(key))
-                    {
-                        int value = transpositionTableA[key];
-                        if (!transpositionTableB.ContainsKey(key))
-                        {
-                            transpositionTableB.Add(key, value);
-                        }
-                        return value;
-                    }
-                    else if (transpositionTableB.ContainsKey(key))
-                    {
-                        return transpositionTableB[key];
-                    }
-                    int eval = QuiescenceMax(alpha, beta, 0);
-                    transpositionTableB.Add(key, eval);
-                    return eval;
-                }
-            }
-            int score = 0;
-            MoveList moveList;
-            Move PVMove = new Move();
-            if(transpositionTableM.ContainsKey(key))
-            {
-                moveList = transpositionTableM[key];
-                if(transpositionTablePV.ContainsKey(key))
-                {
-                    PVMove = transpositionTablePV[key];
-                    //
-                    game.MakeMove(PVMove);
-                    score = AlphaBetaMin(currentDepth - 1, initialDepth, alpha, beta);
-                    nodeBestScore = score;
-                    nodeBestMove = PVMove;
-                    if (score >= beta)
-                    {
-                        if (currentDepth == initialDepth)
-                        {
-                            bestMove = PVMove;
-                        }
-                        game.TakeMove();
-                        if (score == int.MaxValue)
-                        {
-                            return score;
-                        }
-                        return beta;
-                    }
-                    if (score > alpha)
-                    {
-                        if (currentDepth == initialDepth)
-                        {
-                            bestMove = PVMove;
-                        }
-                        alpha = score;
-                    }
-                    game.TakeMove();
-                    //
-                }
-            }
-            else
-            {
-                moveList = new MoveGenerator(game.Position).Moves;
-                transpositionTableM.Add(key, moveList);
-            }
-            foreach (Move m in moveList)
-            {
-                if (end)
-                {
-                    break;
-                }
-                if (m.Equals(PVMove))
-                {
-                    continue;
-                }
-                game.MakeMove(m);
-                score = AlphaBetaMin(currentDepth - 1, initialDepth, alpha, beta);
-                if(score > nodeBestScore)
-                {
-                    nodeBestScore = score;
-                    nodeBestMove = m;
-                }
-                if (score >= beta)
-                {
-                    if (currentDepth == initialDepth)
-                    {
-                        bestMove = m;
-                    }
-                    game.TakeMove();
-                    if(transpositionTablePV.ContainsKey(key))
-                    {
-                        transpositionTablePV[key] = nodeBestMove;
-                    }
-                    else
-                    {
-                        transpositionTablePV.Add(key, nodeBestMove);
-                    }
-                    if(score == int.MaxValue)
-                    {
-                        return score;
-                    }
-                    return beta;
-                }
-                if (score > alpha)
-                {
-                    if (currentDepth == initialDepth)
-                    {
-                        bestMove = m;
-                    }
-                    alpha = score;
-                }
-                game.TakeMove();
-            }
-            if (transpositionTablePV.ContainsKey(key))
-            {
-                transpositionTablePV[key] = nodeBestMove;
-            }
-            else
-            {
-                transpositionTablePV.Add(key, nodeBestMove);
-            }
-            return alpha;
+            int score = PieceValueMG(pieces, end);
+            var moveList = engine.Position.GenerateMoves(Emgf.Quiet);
+            score += (int)(moveList.Count * (Math.PI - Math.E) * type);
+            return score;
         }
-        private int AlphaBetaMin(int currentDepth, int initialDepth, int alpha, int beta)
-        {
-            if(game.Position.IsMate())
-            {
-                return int.MaxValue;
-            }
-            String key = $"0x{game.State.Key:X}";
-            Move nodeBestMove = new Move();
-            int nodeBestScore = int.MaxValue;
-            if (currentDepth == 0)
-            {
-                if (a)
-                {
-                    if (transpositionTableB.ContainsKey(key))
-                    {
-                        int value = transpositionTableB[key];
-                        if (!transpositionTableA.ContainsKey(key))
-                        {
-                            transpositionTableA.Add(key, value);
-                        }
-                        return value;
-                    }
-                    else if (transpositionTableA.ContainsKey(key))
-                    {
-                        return transpositionTableA[key];
-                    }
-                    int eval = QuiescenceMin(alpha, beta, 0);
-                    transpositionTableA.Add(key, eval);
-                    return eval;
-                }
-                else
-                {
-                    if (transpositionTableA.ContainsKey(key))
-                    {
-                        int value = transpositionTableA[key];
-                        if(!transpositionTableB.ContainsKey(key))
-                        {
-                            transpositionTableB.Add(key, value);
-                        }
-                        return value;
-                    }
-                    else if (transpositionTableB.ContainsKey(key))
-                    {
-                        return transpositionTableB[key];
-                    }
-                    int eval = QuiescenceMin(alpha, beta, 0);
-                    transpositionTableB.Add(key, eval);
-                    return eval;
-                }
-            }
-            int score = 0;
-            MoveList moveList;
-            Move PVMove = new Move();
-            if (transpositionTableM.ContainsKey(key))
-            {
-                moveList = transpositionTableM[key];
-                if(transpositionTablePV.ContainsKey(key))
-                {
-                    PVMove = transpositionTablePV[key];
-                    //
-                    game.MakeMove(PVMove);
-                    score = AlphaBetaMax(currentDepth - 1, initialDepth, alpha, beta);
-                    nodeBestMove = PVMove;
-                    nodeBestScore = score;
-                    if (score <= alpha)
-                    {
-                        if (currentDepth == initialDepth)
-                        {
-                            bestMove = PVMove;
-                        }
-                        game.TakeMove();
-                        if (score == int.MinValue)
-                        {
-                            return score;
-                        }
-                        return alpha;
-                    }
-                    if (score < beta)
-                    {
-                        if (currentDepth == initialDepth)
-                        {
-                            bestMove = PVMove;
-                        }
-                        beta = score;
-                    }
-                    game.TakeMove();
-                    //
-                }
-            }
-            else
-            {
-                moveList = new MoveGenerator(game.Position).Moves;
-                transpositionTableM.Add(key, moveList);
-            }
-            foreach (Move m in moveList)
-            {
-                if (end)
-                {
-                    break;
-                }
-                if(m.Equals(PVMove))
-                {
-                    continue;
-                }
-                game.MakeMove(m);
-                score = AlphaBetaMax(currentDepth - 1, initialDepth, alpha, beta);
-                if(score < nodeBestScore)
-                {
-                    nodeBestScore = score;
-                    nodeBestMove = m;
-                }
-                if (score <= alpha)
-                {
-                    if (currentDepth == initialDepth)
-                    {
-                        bestMove = m;
-                    }
-                    game.TakeMove();
-                    if (transpositionTablePV.ContainsKey(key))
-                    {
-                        transpositionTablePV[key] = nodeBestMove;
-                    }
-                    else
-                    {
-                        transpositionTablePV.Add(key, nodeBestMove);
-                    }
-                    if (score == int.MinValue)
-                    {
-                        return score;
-                    }
-                    return alpha;
-                }
-                if (score < beta)
-                {
-                    if (currentDepth == initialDepth)
-                    {
-                        bestMove = m;
-                    }
-                    beta = score;
-                }
-                game.TakeMove();
-            }
-            if (transpositionTablePV.ContainsKey(key))
-            {
-                transpositionTablePV[key] = nodeBestMove;
-            }
-            else
-            {
-                transpositionTablePV.Add(key, nodeBestMove);
-            }
-            return beta;
-        }
-        private int QuiescenceMax(int alpha, int beta, int extraDepth)
-        {
-            int standPat = Eval.MainEvaluation(game.Position.BoardLayout, game, 1);
-            if (standPat >= beta)
-            {
-                return beta;
-            }
-            if (standPat > alpha)
-            {
-                alpha = standPat;
-            }
-            int score = 0;
-            var moveList = new MoveGenerator(game.Position, true, true).Moves;
-            if(extraDepth <= 4)
-            {
-                moveList.Concat(game.Position.GenerateMoves(Emgf.QuietChecks));
-            }
-            foreach (Move m in moveList)
-            {
-                if (end)
-                {
-                    break;
-                }
-                game.MakeMove(m);
-                score = QuiescenceMin(alpha, beta, extraDepth+1);
-                if (score >= beta)
-                {
-                    game.TakeMove();
-                    return beta;
-                }
-                if (score > alpha)
-                {
-                    alpha = score;
-                }
-                game.TakeMove();
-            }
-            return alpha;
-        }
-        private int QuiescenceMin(int alpha, int beta, int extraDepth)
-        {
-            int standPat = Eval.MainEvaluation(game.Position.BoardLayout, game, -1);
-            if (standPat <= alpha)
-            {
-                return alpha;
-            }
-            if (standPat < beta)
-            {
-                beta = standPat;
-            }
-            int score = 0;
-            var moveList = new MoveGenerator(game.Position, true, true).Moves;
-            if (extraDepth <= 4)
-            {
-                moveList.Concat(game.Position.GenerateMoves(Emgf.QuietChecks));
-            }
-            foreach (Move m in moveList)
-            {
-                if (end)
-                {
-                    break;
-                }
-                game.MakeMove(m);
-                score = QuiescenceMax(alpha, beta, extraDepth+1);
-                if (score <= alpha)
-                {
-                    game.TakeMove();
-                    return alpha;
-                }
-                if (score < beta)
-                {
-                    beta = score;
-                }
-                game.TakeMove();
-            }
-            return beta;
-        }
-        private void setTimer(int timeLimit)
-        {
-            timer = new System.Timers.Timer(timeLimit);
-            timer.Elapsed += Terminate;
-            timer.Enabled = true;
-        }
-        private void Terminate(Object source, System.Timers.ElapsedEventArgs e)
+        public static void SetEnd()
         {
             end = true;
-        }
-        //very basic
-        public string EndGameTableBase()
-        {
-            string fen = ParseFen();
-            var html = @"https://syzygy-tables.info/?fen=";
-            html += fen;
-            Console.WriteLine(html);
-            HtmlWeb web = new HtmlWeb();
-            var htmlDoc = web.Load(html);
-            var node = htmlDoc.DocumentNode.SelectSingleNode("//body/div[@class='right-side']/div/section");
-
-            //Console.WriteLine("Node Name: " + node.Name + "\n" + node.OuterHtml);
-
-            string moves = node.OuterHtml;
-            string search = "data-uci=\"";
-
-            moves = moves.Substring(moves.IndexOf(search) + search.Length);
-            //Console.WriteLine(moves);
-
-            string move = moves.Substring(0, 5);
-            if(move[4] == '"')
-            {
-                move = move.Substring(0, 4);
-            }
-            //Console.WriteLine(move);
-
-            return move;
-        }
-        public string ParseFen()
-        {
-            string fen = game.GetFen().ToString();
-            fen = fen.Replace(' ', '_');
-            int underscore = fen.IndexOf('_') + 3;
-            String last;
-            int length = fen.Length;
-            int counter = 1;
-            int numUnderscores = 0;
-            while (numUnderscores < 2)
-            {
-                if (fen[length - counter] == '_')
-                {
-                    numUnderscores++;
-                }
-                counter++;
-            }
-            if (fen[length - counter] == '-')
-            {
-                last = "_-_0_1";
-            }
-            else
-            {
-                last = fen.Substring(length - counter - 2, 3);
-                last += "_0_1";
-            }
-            String newFen = fen.Substring(0, underscore);
-            newFen = newFen + "-" + last;
-            return newFen;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using BaseChessEngine;
+using Rudz.Chess.Types;
 
 namespace BackEndAPI.Controllers
 {
@@ -11,30 +12,39 @@ namespace BackEndAPI.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        static Engine engine = new Engine();
+        static Engine engine;
 
 
         // GET api/values
         [HttpGet]
-        public string Get([FromQuery] String fen)
+        public string Get([FromQuery] String fen, String move)
         {
             bool white = true;
-            if (fen == null)
+            if (move == null)
             {
                 return "njull";
             }
-            engine.game.SetFen(fen);
-            int counter = 0;
-            while(fen[counter] != ' ')
+            if(fen == "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
             {
-                counter++;
-            }
-            if(fen[counter+1] == 'b')
-            {
+                engine = new Engine();
+                engine.PerformMove(move);
                 white = false;
             }
-            String move = engine.GetBestMove(1000, white);
-            return move;
+            else
+            {
+                engine.PerformMove(move);
+                int counter = 0;
+                while (fen[counter] != ' ')
+                {
+                    counter++;
+                }
+                if (fen[counter + 1] == 'w')
+                {
+                    white = false;
+                }
+            }
+            String res = engine.PerformBestMove(8000, white);
+            return res;
         }
 
         // GET api/values/5

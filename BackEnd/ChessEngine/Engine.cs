@@ -7,7 +7,6 @@ using Rudz.Chess;
 using Rudz.Chess.Enums;
 using Rudz.Chess.Types;
 using Rudz.Chess.Factories;
-using Microsoft.AspNetCore.Mvc;
 using HtmlAgilityPack;
 
 namespace BaseChessEngine
@@ -35,10 +34,9 @@ namespace BaseChessEngine
             transpositionTableM = new Dictionary<string, MoveList>();
             transpositionTablePV = new Dictionary<string, Move>();
         }
-        [HttpGet]
         public String PerformBestMove(int timeLimit, bool white) //cplay 1000 w or cplay 1500 b
         {
-            if(game.Occupied.Count < 8)
+            if (game.Occupied.Count < 8)
             {
                 String mv = EndGameTableBase();
                 PerformMove(mv);
@@ -60,7 +58,7 @@ namespace BaseChessEngine
         public bool PerformMove(String mv) //hplay e2e4
         {
             var moveList = new MoveGenerator(game.Position).Moves;
-            foreach(Move m in moveList)
+            foreach (Move m in moveList)
             {
                 if (m.ToString().Equals(mv))
                 {
@@ -85,11 +83,11 @@ namespace BaseChessEngine
         }
         private void UpdateTranspositionTable(string key, int eval)
         {
-            if(a && !transpositionTableA.ContainsKey(key))
+            if (a && !transpositionTableA.ContainsKey(key))
             {
                 transpositionTableA.Add(key, eval);
             }
-            else if(!a && !transpositionTableB.ContainsKey(key))
+            else if (!a && !transpositionTableB.ContainsKey(key))
             {
                 transpositionTableB.Add(key, eval);
             }
@@ -127,7 +125,7 @@ namespace BaseChessEngine
                     break;
                 }
             }
-            if(a)
+            if (a)
             {
                 transpositionTableB = new Dictionary<string, int>();
             }
@@ -138,7 +136,7 @@ namespace BaseChessEngine
             transpositionTableM = new Dictionary<string, MoveList>();
             transpositionTablePV = new Dictionary<string, Move>();
             a = !a;
-            Console.WriteLine("Max depth: " + (maxDepth-1));
+            Console.WriteLine("Max depth: " + (maxDepth - 1));
             Console.WriteLine("Evaluation: " + newScore);
             Console.WriteLine("TTA Count: " + transpositionTableA.Count);
             Console.WriteLine("TTB Count: " + transpositionTableB.Count);
@@ -146,7 +144,7 @@ namespace BaseChessEngine
         }
         private int AlphaBetaMax(int currentDepth, int initialDepth, int alpha, int beta)
         {
-            if(game.Position.IsMate())
+            if (game.Position.IsMate())
             {
                 return int.MinValue;
             }
@@ -155,7 +153,7 @@ namespace BaseChessEngine
             int nodeBestScore = int.MinValue;
             if (currentDepth == 0)
             {
-                if(a)
+                if (a)
                 {
                     if (transpositionTableB.ContainsKey(key))
                     {
@@ -197,10 +195,10 @@ namespace BaseChessEngine
             int score = 0;
             MoveList moveList;
             Move PVMove = new Move();
-            if(transpositionTableM.ContainsKey(key))
+            if (transpositionTableM.ContainsKey(key))
             {
                 moveList = transpositionTableM[key];
-                if(transpositionTablePV.ContainsKey(key))
+                if (transpositionTablePV.ContainsKey(key))
                 {
                     PVMove = transpositionTablePV[key];
                     //
@@ -250,7 +248,7 @@ namespace BaseChessEngine
                 }
                 game.MakeMove(m);
                 score = AlphaBetaMin(currentDepth - 1, initialDepth, alpha, beta);
-                if(score > nodeBestScore)
+                if (score > nodeBestScore)
                 {
                     nodeBestScore = score;
                     nodeBestMove = m;
@@ -262,7 +260,7 @@ namespace BaseChessEngine
                         bestMove = m;
                     }
                     game.TakeMove();
-                    if(transpositionTablePV.ContainsKey(key))
+                    if (transpositionTablePV.ContainsKey(key))
                     {
                         transpositionTablePV[key] = nodeBestMove;
                     }
@@ -270,7 +268,7 @@ namespace BaseChessEngine
                     {
                         transpositionTablePV.Add(key, nodeBestMove);
                     }
-                    if(score == int.MaxValue)
+                    if (score == int.MaxValue)
                     {
                         return score;
                     }
@@ -298,7 +296,7 @@ namespace BaseChessEngine
         }
         private int AlphaBetaMin(int currentDepth, int initialDepth, int alpha, int beta)
         {
-            if(game.Position.IsMate())
+            if (game.Position.IsMate())
             {
                 return int.MaxValue;
             }
@@ -331,7 +329,7 @@ namespace BaseChessEngine
                     if (transpositionTableA.ContainsKey(key))
                     {
                         int value = transpositionTableA[key];
-                        if(!transpositionTableB.ContainsKey(key))
+                        if (!transpositionTableB.ContainsKey(key))
                         {
                             transpositionTableB.Add(key, value);
                         }
@@ -352,7 +350,7 @@ namespace BaseChessEngine
             if (transpositionTableM.ContainsKey(key))
             {
                 moveList = transpositionTableM[key];
-                if(transpositionTablePV.ContainsKey(key))
+                if (transpositionTablePV.ContainsKey(key))
                 {
                     PVMove = transpositionTablePV[key];
                     //
@@ -396,13 +394,13 @@ namespace BaseChessEngine
                 {
                     break;
                 }
-                if(m.Equals(PVMove))
+                if (m.Equals(PVMove))
                 {
                     continue;
                 }
                 game.MakeMove(m);
                 score = AlphaBetaMax(currentDepth - 1, initialDepth, alpha, beta);
-                if(score < nodeBestScore)
+                if (score < nodeBestScore)
                 {
                     nodeBestScore = score;
                     nodeBestMove = m;
@@ -461,7 +459,7 @@ namespace BaseChessEngine
             }
             int score = 0;
             var moveList = new MoveGenerator(game.Position, true, true).Moves;
-            if(extraDepth <= 4)
+            if (extraDepth <= 4)
             {
                 moveList.Concat(game.Position.GenerateMoves(Emgf.QuietChecks));
             }
@@ -472,7 +470,7 @@ namespace BaseChessEngine
                     break;
                 }
                 game.MakeMove(m);
-                score = QuiescenceMin(alpha, beta, extraDepth+1);
+                score = QuiescenceMin(alpha, beta, extraDepth + 1);
                 if (score >= beta)
                 {
                     game.TakeMove();
@@ -510,7 +508,7 @@ namespace BaseChessEngine
                     break;
                 }
                 game.MakeMove(m);
-                score = QuiescenceMax(alpha, beta, extraDepth+1);
+                score = QuiescenceMax(alpha, beta, extraDepth + 1);
                 if (score <= alpha)
                 {
                     game.TakeMove();
@@ -554,7 +552,7 @@ namespace BaseChessEngine
             //Console.WriteLine(moves);
 
             string move = moves.Substring(0, 5);
-            if(move[4] == '"')
+            if (move[4] == '"')
             {
                 move = move.Substring(0, 4);
             }

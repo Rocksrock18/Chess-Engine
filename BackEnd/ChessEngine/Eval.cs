@@ -53,26 +53,40 @@ namespace BaseChessEngine
             -20, -10, -10, -5, -5, -10, -10, -20
         };
 
+        //original
         public static int[] ROOK = new int[]
         {
-            0,   0,  0,  10, 10, 5,  0,  0 ,
+             0,  0,  0,  5,  5,  0,  0,  0 ,
             -5,  0,  0,  0,  0,  0,  0, -5 ,
             -5,  0,  0,  0,  0,  0,  0, -5 ,
             -5,  0,  0,  0,  0,  0,  0, -5 ,
             -5,  0,  0,  0,  0,  0,  0, -5 ,
             -5,  0,  0,  0,  0,  0,  0, -5 ,
-            5,  15, 15, 15, 15, 15, 15,  5 ,
+            5,  10, 10, 10, 10, 10, 10,  5 ,
             0,   0,  0,  0,  0,  0,  0,  0
         };
 
+        //public static int[] KNIGHT = new int[]
+        //{
+        //    -50, -10, -30, -30, -30, -30, -10, -50 ,
+        //    -40, -20,   0,   5,   5,   0, -20, -40 ,
+        //    -30,   5,  10,  10,  10,  10,   5, -30 ,
+        //    -30,   0,  10,  15,  15,  10,   0, -30 ,
+        //    -30,   5,  10,  10,  10,  10,   5, -30 ,
+        //    -30,   0,   5,   5,   5,   5,   0, -30 ,
+        //    -40, -20,   0,   0,   0,   0, -20, -40 ,
+        //    -50, -40, -30, -30, -30, -30, -40, -50
+        //};
+
+        //original
         public static int[] KNIGHT = new int[]
         {
-            -50, -10, -30, -30, -30, -30, -10, -50 ,
+            -50, -40, -30, -30, -30, -30, -40, -50 ,
             -40, -20,   0,   5,   5,   0, -20, -40 ,
-            -30,   5,  10,  10,  10,  10,   5, -30 ,
+            -30,   5,  10,  15,  15,  10,   5, -30 ,
+            -30,   0,  15,  20,  20,  15,   0, -30 ,
+            -30,   5,  15,  20,  20,  15,   5, -30 ,
             -30,   0,  10,  15,  15,  10,   0, -30 ,
-            -30,   5,  10,  10,  10,  10,   5, -30 ,
-            -30,   0,   5,   5,   5,   5,   0, -30 ,
             -40, -20,   0,   0,   0,   0, -20, -40 ,
             -50, -40, -30, -30, -30, -30, -40, -50
         };
@@ -104,7 +118,8 @@ namespace BaseChessEngine
             -20, -10, -10, -10, -10, -10, -10, -20
         };
         */
-
+        /*
+        // jacob's bishop
         public static int[] BISHOP = new int[]
         {
             -20, -10, -10, -10, -10, -10, -10, -20 ,
@@ -116,8 +131,9 @@ namespace BaseChessEngine
             -10,   0,   0,   0,   0,   0,   0, -10 ,
             -20, -10, -10, -10, -10, -10, -10, -20
         };
-        /*
-         * public static int[] BISHOP = new int[]
+        */
+        //original
+        public static int[] BISHOP = new int[]
         {
             -20, -10, -10, -10, -10, -10, -10, -20 ,
             -10,   5,   0,   0,   0,   0,   5, -10 ,
@@ -128,7 +144,7 @@ namespace BaseChessEngine
             -10,   0,   0,   0,   0,   0,   0, -10 ,
             -20, -10, -10, -10, -10, -10, -10, -20
         };
-        */
+        /*
         //jacob's pawn
         public static int[] PAWN = new int[]
         {
@@ -141,7 +157,7 @@ namespace BaseChessEngine
             80, 80,  80,  80,  80,  80,  80, 80 ,
             0,  0,   0,   0,   0,   0,   0,  0
         };
-
+        */
         //        /* jasen's pawn */
         //        public static int[] PAWN = new int[]
         //{
@@ -154,7 +170,7 @@ namespace BaseChessEngine
         //           45, 50,  75,  75,  75,  75, 50, 45 ,
         //            0,  0,   0,   0,   0,   0,  0,  0
         //};
-        /* original
+        //original
         public static int[] PAWN = new int[]
         {
             0,  0,   0,   0,   0,   0,  0,  0 ,
@@ -166,7 +182,6 @@ namespace BaseChessEngine
             50, 50,  50,  50,  50,  50, 50, 50 ,
             0,  0,   0,   0,   0,   0,  0,  0
         };
-        */
         public static int PieceValueMG(Piece[] boardP, bool end)
         {
             int score = 0;
@@ -175,7 +190,7 @@ namespace BaseChessEngine
                 Piece piece = boardP[i];
                 if (!piece.IsNoPiece())
                 {
-                    switch(piece.GetPieceChar())
+                    switch (piece.GetPieceChar())
                     {
                         case 'p':
                             score += -100;
@@ -211,7 +226,7 @@ namespace BaseChessEngine
                             break;
                         case 'k':
                             //score += -28000;
-                            if(end)
+                            if (end)
                             {
                                 score += -KING_END[(63 - i) / 8 * 8 + i % 8];
                             }

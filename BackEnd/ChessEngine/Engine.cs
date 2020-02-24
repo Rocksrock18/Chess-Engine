@@ -60,11 +60,18 @@ namespace BaseChessEngine
             var moveList = new MoveGenerator(game.Position).Moves;
             foreach (Move m in moveList)
             {
-                if (m.ToString().Equals(mv))
+                if (m.ToString().Substring(0,4).Equals(mv.Substring(0,4)))
                 {
                     if (m.IsCastlelingMove())
                     {
                         game.Position.SetCastle(game.State.SideToMove.IsWhite());
+                    }
+                    if(m.ToString().Length == 5)
+                    {
+                        if(m.ToString()[4] != 'q')
+                        {
+                            continue;
+                        }
                     }
                     game.MakeMove(m);
                     return true;
@@ -112,13 +119,10 @@ namespace BaseChessEngine
                 {
                     score = AlphaBetaMin(maxDepth, maxDepth, alpha, beta);
                 }
-                if (!end)
-                {
-                    oldMove = bestMove;
-                    newScore = score;
-                    Console.WriteLine(oldMove + " " + score + " " + maxDepth);
-                    maxDepth++;
-                }
+                oldMove = bestMove;
+                newScore = score;
+                Console.WriteLine(oldMove + " " + score + " " + maxDepth);
+                maxDepth++;
                 game.SetFen(fen);
                 if (newScore == int.MaxValue || newScore == int.MinValue)
                 {
@@ -238,10 +242,12 @@ namespace BaseChessEngine
             }
             foreach (Move m in moveList)
             {
+                /*
                 if (end)
                 {
                     break;
                 }
+                */
                 if (m.Equals(PVMove))
                 {
                     continue;
@@ -390,10 +396,12 @@ namespace BaseChessEngine
             }
             foreach (Move m in moveList)
             {
+                /*
                 if (end)
                 {
                     break;
                 }
+                */
                 if (m.Equals(PVMove))
                 {
                     continue;
@@ -465,10 +473,12 @@ namespace BaseChessEngine
             }
             foreach (Move m in moveList)
             {
+                /*
                 if (end)
                 {
                     break;
                 }
+                */
                 game.MakeMove(m);
                 score = QuiescenceMin(alpha, beta, extraDepth + 1);
                 if (score >= beta)
@@ -503,10 +513,12 @@ namespace BaseChessEngine
             }
             foreach (Move m in moveList)
             {
+                /*
                 if (end)
                 {
                     break;
                 }
+                */
                 game.MakeMove(m);
                 score = QuiescenceMax(alpha, beta, extraDepth + 1);
                 if (score <= alpha)

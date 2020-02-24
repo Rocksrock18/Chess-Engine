@@ -43,7 +43,7 @@ namespace BackEndAPI.Controllers
                     white = false;
                 }
             }
-            String res = engine.PerformBestMove(8000, white);
+            String res = engine.PerformBestMove(5000, white);
             return res;
         }
 

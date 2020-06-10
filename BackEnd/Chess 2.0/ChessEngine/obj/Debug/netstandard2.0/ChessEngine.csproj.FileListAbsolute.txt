@@ -1,0 +1,9 @@
+C:\Users\jtmax\source\repos\Chess-2.0\ChessEngine\bin\Debug\netstandard2.0\ChessEngine.deps.json
+C:\Users\jtmax\source\repos\Chess-2.0\ChessEngine\bin\Debug\netstandard2.0\ChessEngine.dll
+C:\Users\jtmax\source\repos\Chess-2.0\ChessEngine\bin\Debug\netstandard2.0\ChessEngine.pdb
+C:\Users\jtmax\source\repos\Chess-2.0\ChessEngine\obj\Debug\netstandard2.0\ChessEngine.csprojAssemblyReference.cache
+C:\Users\jtmax\source\repos\Chess-2.0\ChessEngine\obj\Debug\netstandard2.0\ChessEngine.csproj.CoreCompileInputs.cache
+C:\Users\jtmax\source\repos\Chess-2.0\ChessEngine\obj\Debug\netstandard2.0\ChessEngine.AssemblyInfoInputs.cache
+C:\Users\jtmax\source\repos\Chess-2.0\ChessEngine\obj\Debug\netstandard2.0\ChessEngine.AssemblyInfo.cs
+C:\Users\jtmax\source\repos\Chess-2.0\ChessEngine\obj\Debug\netstandard2.0\ChessEngine.dll
+C:\Users\jtmax\source\repos\Chess-2.0\ChessEngine\obj\Debug\netstandard2.0\ChessEngine.pdb

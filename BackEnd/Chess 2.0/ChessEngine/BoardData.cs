@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using static ChessEngine.Conversion.Pieces;
@@ -316,11 +316,7 @@ namespace ChessEngine
             }
             PrevMoveCheck = new Stack<bool>();
             PrevMoveCheck.Push(InCheck);
-
-            WKCastle = (fen.Substring(fen.Length - 11).IndexOf('K') != -1);
-            WQCastle = (fen.Substring(fen.Length - 11).IndexOf('Q') != -1);
-            BKCastle = (fen.Substring(fen.Length - 11).IndexOf('k') != -1);
-            BQCastle = (fen.Substring(fen.Length - 11).IndexOf('q') != -1);
+            
 
             if (fen.Substring(fen.Length - 6).IndexOf('-') != -1)
             {
@@ -369,6 +365,11 @@ namespace ChessEngine
             EnPassantHistory = new Stack<int>();
             EnPassantHistory.Push(Enpassant);
 
+            WKCastle = (fen.Substring(fen.Length - 11).IndexOf('K') != -1);
+            WQCastle = (fen.Substring(fen.Length - 11).IndexOf('Q') != -1);
+            BKCastle = (fen.Substring(fen.Length - 11).IndexOf('k') != -1);
+            BQCastle = (fen.Substring(fen.Length - 11).IndexOf('q') != -1);
+
             NumKingRookMoves = new int[6];
 
             NumKingRookMoves[0] = (WQCastle ? 0 : 1);
@@ -377,6 +378,9 @@ namespace ChessEngine
             NumKingRookMoves[3] = (BQCastle ? 0 : 1);
             NumKingRookMoves[4] = (Board[95] == (int)BLACK_KING ? 0 : 1);
             NumKingRookMoves[5] = (BKCastle ? 0 : 1);
+
+            CorrectRookLocations();
+
 
             capturedIndex = new Stack<int>();
 
@@ -390,6 +394,29 @@ namespace ChessEngine
             key = z.Hash(this);
 
             UpdateEnd();
+        }
+
+        private void CorrectRookLocations()
+        {
+            if (NumKingRookMoves[2] == 0)
+            {
+                if(PieceLocations[7] != 28)
+                {
+                    int oldLoc = PieceLocations[7];
+                    PieceLocations[7] = PieceLocations[0];
+                    PieceLocations[0] = oldLoc;
+                }
+            }
+
+            if (NumKingRookMoves[5] == 0)
+            {
+                if (PieceLocations[31] != 98)
+                {
+                    int oldLoc = PieceLocations[31];
+                    PieceLocations[31] = PieceLocations[24];
+                    PieceLocations[24] = oldLoc;
+                }
+            }
         }
 
         public void DisplayBoard()
